@@ -3,7 +3,6 @@ package com.example.trongame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
@@ -13,24 +12,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button rightTurnLeft = findViewById(R.id.rightTurnLeft);
-        rightTurnLeft.setOnClickListener(v -> {
-            System.out.println("Right Turn Left");
+        Button rightTurnLeftPlayer = findViewById(R.id.rightTurnLeftPlayer);
+        rightTurnLeftPlayer.setOnClickListener(v -> {
+            System.out.println("Right Turn Left Player");
         });
 
-        Button leftTurnLeft = findViewById(R.id.leftTurnLeft);
-        leftTurnLeft.setOnClickListener(v -> {
-            System.out.println("Left Turn Left");
+        Button leftTurnLeftPlayer = findViewById(R.id.leftTurnLeftPlayer);
+        leftTurnLeftPlayer.setOnClickListener(v -> {
+            System.out.println("Left Turn Left Player");
         });
 
-        Button rightTurnRight = findViewById(R.id.rightTurnRight);
-        rightTurnRight.setOnClickListener(v -> {
-            System.out.println("Right Turn Right");
+        Button rightTurnRightPlayer = findViewById(R.id.rightTurnRightPlayer);
+        rightTurnRightPlayer.setOnClickListener(v -> {
+            System.out.println("Right Turn Right Player");
         });
 
-        Button leftTurnRight = findViewById(R.id.leftTurnRight);
-        leftTurnRight.setOnClickListener(v -> {
-            System.out.println("Left Turn Right");
+        Button leftTurnRightPlayer = findViewById(R.id.leftTurnRightPlayer);
+        leftTurnRightPlayer.setOnClickListener(v -> {
+            System.out.println("Left Turn Right Player");
         });
     }
 }
