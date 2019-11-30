@@ -12,10 +12,12 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //https://stackoverflow.com/questions/35692984/programmatically-adding-textview-to-grid-layout-alignment-not-proper/53948318#53948318
 //https://stackoverflow.com/questions/11434056/how-to-run-a-method-every-x-seconds
+//https://stackoverflow.com/questions/4849051/using-contains-on-an-arraylist-with-integer-arrays
 
 //need to implement: start new game
 //check collisions/endstate/end game
@@ -48,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     private int SOUTH = 2;
     private int WEST = 3;
 
+    private int GAME_END_TIE = 0;
+    private int GAME_END_PLAYER_1_WINS = 1;
+    private int GAME_END_PLAYER_2_WINS = 2;
+
     //initial direction of each player
     private int player1StartingDirection = EAST;
     private int player2StartingDirection = WEST;
@@ -68,11 +74,19 @@ public class MainActivity extends AppCompatActivity {
     private boolean isGameRunning = false;
 
     final Handler handler = new Handler();
+    private Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        runnable = new Runnable(){
+            public void run(){
+                gameUpdate();
+                handler.postDelayed(this, delayMilliseconds);
+            }
+        };
 
         androidx.gridlayout.widget.GridLayout arena = findViewById(R.id.arenaGridLayout);
         //arena.setAlignmentMode(GridLayout.ALIGN_BOUNDS);\
@@ -120,34 +134,76 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.player2LeftButton).setOnClickListener(unused -> player2LeftButtonPressed());
         findViewById(R.id.player2RightButton).setOnClickListener(unused -> player2RightButtonPressed());
 
+        ((Button) findViewById(R.id.player1LeftButton)).setText("Left\n(Press\nto\nstart)");
+        ((Button) findViewById(R.id.player1RightButton)).setText("Right\n(Press\nto\nstart)");
+        ((Button) findViewById(R.id.player2LeftButton)).setText("Left\n(Press\nto\nstart)");
+        ((Button) findViewById(R.id.player2RightButton)).setText("Right\n(Press\nto\nstart)");
+
+        findViewById(R.id.player1LeftButton).setBackgroundColor(player1Color);
+        findViewById(R.id.player1RightButton).setBackgroundColor(player1Color);
+        findViewById(R.id.player2LeftButton).setBackgroundColor(player2Color);
+        findViewById(R.id.player2RightButton).setBackgroundColor(player2Color);
+
         setUpNewGame();
-        startGameplay();
+
     }
 
     private void startGameplay() {
+        isGameRunning = true;
+
         //calls gameUpdate every delayMilliseconds
-        handler.postDelayed(new Runnable(){
-            public void run(){
-                gameUpdate();
-                handler.postDelayed(this, delayMilliseconds);
-            }
-        }, delayMilliseconds);
+        handler.postDelayed(runnable, delayMilliseconds);
     }
 
     private void endGameplay() {
-        //handler.removeCallbacks(handler);
+        isGameRunning = false;
+        handler.removeCallbacks(runnable);
     }
 
     private void setUpNewGame() {
         //clear previous paths
         player1Path.clear();
         player2Path.clear();
+        resetArenaGraphics();
+
+        //reset directions
+        player1PreviousDirection = player1StartingDirection;
+        player1CurrentDirection = player1StartingDirection;
+        player2PreviousDirection = player2StartingDirection;
+        player2CurrentDirection = player2StartingDirection;
 
         //adds initial position to paths of each player
         player1Path.add(player1StartingCoordinate);
         player2Path.add(player2StartingCoordinate);
         //updates graphics of trail
         updatePlayerTrailsGraphics();
+
+
+    }
+
+    //0 for tie, 1 for player 1, 2 for player 2
+    private void setUpEndGame(int winner) {
+        //stuff like updating text
+        if (winner == GAME_END_TIE) {
+            ((Button) findViewById(R.id.player1LeftButton)).setText("Tie\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player1RightButton)).setText("Tie\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2LeftButton)).setText("Tie\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2RightButton)).setText("Tie\n(Press\nto\nrestart)");
+        } else if (winner == GAME_END_PLAYER_1_WINS) {
+            ((Button) findViewById(R.id.player1LeftButton)).setText("Win\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player1RightButton)).setText("Win\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2LeftButton)).setText("Lose\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2RightButton)).setText("Lose\n(Press\nto\nrestart)");
+        } else if (winner == GAME_END_PLAYER_2_WINS) {
+            ((Button) findViewById(R.id.player1LeftButton)).setText("Lose\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player1RightButton)).setText("Lose\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2LeftButton)).setText("Win\n(Press\nto\nrestart)");
+            ((Button) findViewById(R.id.player2RightButton)).setText("Win\n(Press\nto\nrestart)");
+        } else {
+            Log.d(TAG, "Winner error");
+        }
+
+        endGameplay();
     }
 
     private Button getButton(int row, int column) {
@@ -159,6 +215,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gameUpdate() {
+        //update button text
+        ((Button) findViewById(R.id.player1LeftButton)).setText("Left");
+        ((Button) findViewById(R.id.player1RightButton)).setText("Right");
+        ((Button) findViewById(R.id.player2LeftButton)).setText("Left");
+        ((Button) findViewById(R.id.player2RightButton)).setText("Right");
+
         //move trail one block
         int[] player1CurrentLocation = player1Path.get(player1Path.size() - 1);
         int[] player1NextLocation = new int[2];
@@ -173,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Direction error");
         }
-        player1Path.add(player1NextLocation);
+
 
         int[] player2CurrentLocation = player2Path.get(player2Path.size() - 1);
         int[] player2NextLocation = new int[2];
@@ -188,18 +250,55 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "Direction error");
         }
-        player2Path.add(player2NextLocation);
+
 
         //update previous direction
         player1PreviousDirection = player1CurrentDirection;
         player2PreviousDirection = player2CurrentDirection;
 
-        //update graphics of player trails
-        updatePlayerTrailsGraphics();
-
         //check for end game (collisions with either trail, collisions with arena wall
-
         //if game ends - update buttons to show winner, update buttons to allow game to restart
+        boolean player1Alive = true;
+        if (player1NextLocation[0] < 0 || player1NextLocation[0] >= ROWS || player1NextLocation[1] < 0 || player1NextLocation[1] >= COLUMNS
+                || player1PathContains(player1NextLocation) || player2PathContains(player1NextLocation)) {
+            player1Alive = false;
+        }
+        boolean player2Alive = true;
+        if (player2NextLocation[0] < 0 || player2NextLocation[0] >= ROWS || player2NextLocation[1] < 0 || player2NextLocation[1] >= COLUMNS
+                || player1PathContains(player2NextLocation) || player2PathContains(player2NextLocation)) {
+            player2Alive = false;
+        }
+        if (!player1Alive && !player2Alive) {
+            setUpEndGame(GAME_END_TIE);
+        } else if (!player1Alive) {
+            setUpEndGame(GAME_END_PLAYER_2_WINS);
+        } else if (!player2Alive) {
+            setUpEndGame(GAME_END_PLAYER_1_WINS);
+        }
+
+
+        //update graphics of player trails
+        if (isGameRunning) {
+            player1Path.add(player1NextLocation);
+            player2Path.add(player2NextLocation);
+            updatePlayerTrailsGraphics();
+        }
+    }
+    private boolean player1PathContains(int[] input) {
+        for(final int[] item : player1Path){
+            if(Arrays.equals(item, input)){
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean player2PathContains(int[] input) {
+        for(final int[] item : player2Path){
+            if(Arrays.equals(item, input)){
+                return true;
+            }
+        }
+        return false;
     }
     private void updatePlayerTrailsGraphics() {
         for (int currentPlayer1CoordinateIndex = 0; currentPlayer1CoordinateIndex < player1Path.size(); currentPlayer1CoordinateIndex++) {
@@ -211,58 +310,85 @@ public class MainActivity extends AppCompatActivity {
             updateColor(currentCoordinate[0], currentCoordinate[1], player2Color);
         }
     }
+    private void resetArenaGraphics() {
+        for (int currentRow = 0; currentRow < ROWS; currentRow++) { //sets up initial arena
+            for (int currentColumn = 0; currentColumn < COLUMNS; currentColumn++) {
+                updateColor(currentRow, currentColumn, gridColor);
+            }
+        }
+    }
 
     //need method to update direction based on button press
     private void player1LeftButtonPressed() {
-        if (player1PreviousDirection == NORTH) {
-            player1CurrentDirection = WEST;
-        } else if (player1PreviousDirection == EAST) {
-            player1CurrentDirection = NORTH;
-        } else if (player1PreviousDirection == SOUTH) {
-            player1CurrentDirection = EAST;
-        } else if (player1PreviousDirection == WEST) {
-            player1CurrentDirection = SOUTH;
+        if (!isGameRunning) {
+            setUpNewGame();
+            startGameplay();
         } else {
-            Log.d(TAG, "Direction error");
+            if (player1PreviousDirection == NORTH) {
+                player1CurrentDirection = WEST;
+            } else if (player1PreviousDirection == EAST) {
+                player1CurrentDirection = NORTH;
+            } else if (player1PreviousDirection == SOUTH) {
+                player1CurrentDirection = EAST;
+            } else if (player1PreviousDirection == WEST) {
+                player1CurrentDirection = SOUTH;
+            } else {
+                Log.d(TAG, "Direction error");
+            }
         }
     }
     private void player1RightButtonPressed() {
-        if (player1PreviousDirection == NORTH) {
-            player1CurrentDirection = EAST;
-        } else if (player1PreviousDirection == EAST) {
-            player1CurrentDirection = SOUTH;
-        } else if (player1PreviousDirection == SOUTH) {
-            player1CurrentDirection = WEST;
-        } else if (player1PreviousDirection == WEST) {
-            player1CurrentDirection = NORTH;
+        if (!isGameRunning) {
+            setUpNewGame();
+            startGameplay();
         } else {
-            Log.d(TAG, "Direction error");
+            if (player1PreviousDirection == NORTH) {
+                player1CurrentDirection = EAST;
+            } else if (player1PreviousDirection == EAST) {
+                player1CurrentDirection = SOUTH;
+            } else if (player1PreviousDirection == SOUTH) {
+                player1CurrentDirection = WEST;
+            } else if (player1PreviousDirection == WEST) {
+                player1CurrentDirection = NORTH;
+            } else {
+                Log.d(TAG, "Direction error");
+            }
         }
     }
     private void player2LeftButtonPressed() {
-        if (player2PreviousDirection == NORTH) {
-            player2CurrentDirection = WEST;
-        } else if (player2PreviousDirection == EAST) {
-            player2CurrentDirection = NORTH;
-        } else if (player2PreviousDirection == SOUTH) {
-            player2CurrentDirection = EAST;
-        } else if (player2PreviousDirection == WEST) {
-            player2CurrentDirection = SOUTH;
+        if (!isGameRunning) {
+            setUpNewGame();
+            startGameplay();
         } else {
-            Log.d(TAG, "Direction error");
+            if (player2PreviousDirection == NORTH) {
+                player2CurrentDirection = WEST;
+            } else if (player2PreviousDirection == EAST) {
+                player2CurrentDirection = NORTH;
+            } else if (player2PreviousDirection == SOUTH) {
+                player2CurrentDirection = EAST;
+            } else if (player2PreviousDirection == WEST) {
+                player2CurrentDirection = SOUTH;
+            } else {
+                Log.d(TAG, "Direction error");
+            }
         }
     }
     private void player2RightButtonPressed() {
-        if (player2PreviousDirection == NORTH) {
-            player2CurrentDirection = EAST;
-        } else if (player2PreviousDirection == EAST) {
-            player2CurrentDirection = SOUTH;
-        } else if (player2PreviousDirection == SOUTH) {
-            player2CurrentDirection = WEST;
-        } else if (player2PreviousDirection == WEST) {
-            player2CurrentDirection = NORTH;
+        if (!isGameRunning) {
+            setUpNewGame();
+            startGameplay();
         } else {
-            Log.d(TAG, "Direction error");
+            if (player2PreviousDirection == NORTH) {
+                player2CurrentDirection = EAST;
+            } else if (player2PreviousDirection == EAST) {
+                player2CurrentDirection = SOUTH;
+            } else if (player2PreviousDirection == SOUTH) {
+                player2CurrentDirection = WEST;
+            } else if (player2PreviousDirection == WEST) {
+                player2CurrentDirection = NORTH;
+            } else {
+                Log.d(TAG, "Direction error");
+            }
         }
     }
 }
