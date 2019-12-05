@@ -9,8 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,9 +86,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_startup);
-        Button startGame = findViewById(R.id.startGame);
-        startGame.setOnClickListener(v -> startActivity(new Intent(this, NewGameActivity.class)));
 
+        Intent intent = new Intent(this, NewGameActivity.class);
+        Spinner settings = findViewById(R.id.settings);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.grid_sizes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        settings.setAdapter(adapter);
+        intent.putExtra("rows", 70);
+        intent.putExtra("columns", 90);
+        settings.setSelection(1);
+
+        settings.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(final AdapterView<?> parent, final View view,
+                                       final int position, final long id) {
+                if (position == 0) {
+                    intent.putExtra("rows", 30);
+                    intent.putExtra("columns", 50);
+                } else if (position == 1) {
+                    intent.putExtra("rows", 50);
+                    intent.putExtra("columns", 70);
+                } else if (position == 2) {
+                    intent.putExtra("rows", 70);
+                    intent.putExtra("columns", 90);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(final AdapterView<?> parent) {
+
+            }
+        });
+
+        Button startGame = findViewById(R.id.startGame);
+        startGame.setOnClickListener(v -> startActivity(intent));
         /*
         setContentView(R.layout.activity_main);
 

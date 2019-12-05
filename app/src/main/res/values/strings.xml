@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Tron</string>
+    <string-array name="grid_sizes">
+        <item>SMALL GRID</item>
+        <item>MEDIUM GRID</item>
+        <item>LARGE GRID</item>
+    </string-array>
 </resources>

@@ -1,5 +1,6 @@
 package com.example.tron;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +31,7 @@ public class NewGameActivity extends AppCompatActivity {
     private int buttonSize = 10; //size of button in pixels (i think)
     private int ROWS = 70; //rows of arena
     private int COLUMNS = 90; //columns of arena
-    private Button[][] buttonArena = new Button[ROWS][COLUMNS];
+    private Button[][] buttonArena;
 
     private int gridPadding = 2; //spacing between each button
     private int gridColor = Color.LTGRAY; //base color of arena
@@ -39,8 +40,8 @@ public class NewGameActivity extends AppCompatActivity {
     private int player2Color = Color.RED; //color of player 2 trail
 
     //starting coordinate: int[] of size 2, first value is row, second value is column
-    private int[] player1StartingCoordinate = new int[]{10, 10};
-    private int[] player2StartingCoordinate = new int[]{ROWS - 1 - 10, COLUMNS - 1 - 10};
+    private int[] player1StartingCoordinate;
+    private int[] player2StartingCoordinate;
 
     //the actual values are arbitrary, they just serve to identify the directions
     private int NORTH = 0;
@@ -79,6 +80,14 @@ public class NewGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         System.out.println("new game activity started");
         setContentView(R.layout.activity_main);
+
+        Intent intent = getIntent();
+        ROWS = intent.getIntExtra("rows", 70);
+        COLUMNS = intent.getIntExtra("columns", 90);
+        buttonArena = new Button[ROWS][COLUMNS];
+
+        player1StartingCoordinate = new int[]{10, 10};
+        player2StartingCoordinate = new int[]{ROWS - 1 - 10, COLUMNS - 1 - 10};
 
         runnable = new Runnable(){
             public void run(){
