@@ -1,16 +1,13 @@
 package com.example.tron;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.gridlayout.widget.GridLayout;
-
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.LinearLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.gridlayout.widget.GridLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +21,7 @@ import java.util.List;
 //check collisions/endstate/end game
 //(re)start new game
 
-public class MainActivity extends AppCompatActivity {
+public class NewGameActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity"; //tag for logcat
 
@@ -80,12 +77,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_startup);
-        Button startGame = findViewById(R.id.startGame);
-        startGame.setOnClickListener(v -> startActivity(new Intent(this, NewGameActivity.class)));
-
-        /*
+        System.out.println("new game activity started");
         setContentView(R.layout.activity_main);
 
         runnable = new Runnable(){
@@ -95,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        androidx.gridlayout.widget.GridLayout arena = findViewById(R.id.arenaGridLayout);
+        GridLayout arena = findViewById(R.id.arenaGridLayout);
         //arena.setAlignmentMode(GridLayout.ALIGN_BOUNDS);\
 
         arena.setColumnCount(COLUMNS);
@@ -152,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.player2RightButton).setBackgroundColor(player2Color);
 
         setUpNewGame();
-        */
+
     }
 
     private void startGameplay() {
