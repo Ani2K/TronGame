@@ -276,6 +276,10 @@ public class NewGameActivity extends AppCompatActivity {
                 || player1PathContains(player2NextLocation) || player2PathContains(player2NextLocation)) {
             player2Alive = false;
         }
+        if (player1NextLocation[0] == player2NextLocation[0] && player1NextLocation[1] == player2NextLocation[1]) { //if both players both move to same space at the same time
+            player1Alive = false;
+            player2Alive = false;
+        }
         if (!player1Alive && !player2Alive) {
             setUpEndGame(GAME_END_TIE);
         } else if (!player1Alive) {
