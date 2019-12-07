@@ -28,12 +28,12 @@ public class NewGameActivity extends AppCompatActivity {
 
     private int delayMilliseconds = 100; //milliseconds between each game update
 
-    private int buttonSize = 10; //size of button in pixels (i think)
+    private int buttonSize = 7; //size of button in pixels (i think)
     private int ROWS = 70; //rows of arena
     private int COLUMNS = 90; //columns of arena
     private Button[][] buttonArena;
 
-    private int gridPadding = 2; //spacing between each button
+    private int gridPadding = 1; //spacing between each button
     private int gridColor = Color.LTGRAY; //base color of arena
 
     private int player1Color = Color.BLUE; //color of player 1 trail
